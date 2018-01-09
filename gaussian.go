@@ -149,3 +149,31 @@ func NewSkewnorm (skewness float64) * Skewnorm {
           skewness:    skewness,
         }
 }
+
+/// PROB
+//pdf of skewnorm
+func (self *Skewnorm) Pdf(x, a float64) float64 {
+    y:= NewGaussian(0, 1)
+    return 2.0 * y.Pdf(x) * y.Cdf(a * x)
+}
+
+func elementwise_rvs(a float64) float64 {
+    var u0, v, d, u1 float64
+    u0 = rand.NormFloat64()
+    v  = rand.NormFloat64()
+    d  = a / math.Sqrt(float64(1 + a*a))
+    u1 = d * u0 + v * math.Sqrt(float64(1 - d*d))
+    if u0 >= 0 {
+        return u1
+    } else {
+    return -u1
+    }
+}
+
+func (self *Skewnorm) Rvs(a float64, size int) []float64 {
+    s:= make([]float64, 0)
+    for i:= 0; i < size; i ++ {
+        s = append(s, elementwise_rvs(a))
+    }
+    return s
+}
