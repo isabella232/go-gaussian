@@ -6,6 +6,7 @@ package gaussian
 
 import (
 	"math"
+  "math/rand"
 )
 
 // prop
@@ -135,4 +136,16 @@ func (self *Gaussian) Div(d *Gaussian) *Gaussian {
 	precision := 1 / self.variance
 	dprecision := 1 / d.variance
 	return fromPrecisionMean(precision-dprecision, precision*self.mean-dprecision*d.mean)
+}
+
+//Define Skewnorm
+
+type Skewnorm struct {
+    skewness float64
+}
+
+func NewSkewnorm (skewness float64) * Skewnorm {
+    return &Skewnorm{
+          skewness:    skewness,
+        }
 }
