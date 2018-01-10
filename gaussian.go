@@ -141,26 +141,35 @@ func (self *Gaussian) Div(d *Gaussian) *Gaussian {
 //Define Skewnorm
 
 type Skewnorm struct {
-    skewness float64
+  skewness float64
+  loc      float64
+  scale    float64
 }
 
-func NewSkewnorm (skewness float64) * Skewnorm {
+func NewSkewnorm (skewness, loc, scale float64) * Skewnorm {
     return &Skewnorm{
-          skewness:    skewness,
+          skewness: skewness,
+          loc:      loc,
+          scale:    scale,
         }
 }
 
 /// PROB
 //pdf of skewnorm
-func (self *Skewnorm) Pdf(x, a float64) float64 {
-    y:= NewGaussian(0, 1)
+func basic_pdf(x, a float64) float64 {
+    y := NewGaussian(0, 1)
     return 2.0 * y.Pdf(x) * y.Cdf(a * x)
 }
 
-func elementwise_rvs(a float64) float64 {
+func (self *Skewnorm) Pdf(x, a, loc, scale float64) float64 {
+    z := (x - loc)/ scale
+    return basic_pdf(z, a) / scale
+}
+
+func elementwise_rvs(a, loc, scale float64) float64 {
     var u0, v, d, u1 float64
-    u0 = rand.NormFloat64()
-    v  = rand.NormFloat64()
+    u0 = rand.NormFloat64() * scale + loc
+    v  = rand.NormFloat64() * scale + loc
     d  = a / math.Sqrt(float64(1 + a*a))
     u1 = d * u0 + v * math.Sqrt(float64(1 - d*d))
     if u0 >= 0 {
@@ -170,10 +179,10 @@ func elementwise_rvs(a float64) float64 {
     }
 }
 
-func (self *Skewnorm) Rvs(a float64, size int) []float64 {
-    s:= make([]float64, 0)
+func (self *Skewnorm) Rvs(a, loc, scale float64, size int) []float64 {
+    s := make([]float64, 0)
     for i:= 0; i < size; i ++ {
-        s = append(s, elementwise_rvs(a))
+        s = append(s, elementwise_rvs(a, loc, scale))
     }
     return s
 }
