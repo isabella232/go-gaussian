@@ -5,8 +5,9 @@ package gaussian
 // MIT License
 
 import (
-	"math"
+  "math"
   "math/rand"
+  "time"
 )
 
 // prop
@@ -168,19 +169,20 @@ func (self *Skewnorm) Pdf(x, a, loc, scale float64) float64 {
 
 func elementwise_rvs(a, loc, scale float64) float64 {
     var u0, v, d, u1 float64
-    u0 = rand.NormFloat64() * scale + loc
-    v  = rand.NormFloat64() * scale + loc
+    u0 = rand.NormFloat64()
+    v  = rand.NormFloat64()
     d  = a / math.Sqrt(float64(1 + a*a))
     u1 = d * u0 + v * math.Sqrt(float64(1 - d*d))
     if u0 >= 0 {
-        return u1
+        return (loc + scale * u1)
     } else {
-    return -u1
+    return (loc + scale * -u1)
     }
 }
 
 func (self *Skewnorm) Rvs(a, loc, scale float64, size int) []float64 {
     s := make([]float64, 0)
+    rand.Seed(time.Now().UTC().UnixNano())
     for i:= 0; i < size; i ++ {
         s = append(s, elementwise_rvs(a, loc, scale))
     }
