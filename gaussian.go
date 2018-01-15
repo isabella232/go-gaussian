@@ -176,7 +176,7 @@ func elementwise_rvs(a, loc, scale float64) float64 {
     if u0 >= 0 {
         return (loc + scale * u1)
     } else {
-    return (loc + scale * -u1)
+        return (loc + scale * -u1)
     }
 }
 
@@ -187,4 +187,22 @@ func (self *Skewnorm) Rvs(a, loc, scale float64, size int) []float64 {
         s = append(s, elementwise_rvs(a, loc, scale))
     }
     return s
+}
+
+func get_ideal_skew (price_factor float64) float64 {
+    // skewness of 0 is equivalent to the normal distribution
+    return (9/0.49) * price_factor + (-9 - (0.09/0.049))
+}
+
+func Create_pricefactordist(price_factor float64) float64 {
+    var loc, scale float64 =  price_factor, 0.025
+    var size int = 1
+    skewness := get_ideal_skew(price_factor)
+    y := NewSkewnorm(skewness, loc, scale)
+    x :=  y.Rvs(skewness, loc, scale, size)[0]
+    if x < 0 {
+          return 0
+    } else {
+          return x
+        }      
 }
